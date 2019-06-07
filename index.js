@@ -40,11 +40,7 @@ app.get("/", function(req, res) {
 });
 
 app.get("/home", function(req, res) {
-  firebase.auth().onAuthStateChanged(function(user) {
-    if (user) {
-      res.render("home.ejs", { user: user });
-    }
-  });
+  res.render("home.ejs");
 });
 
 app.get("/add_vehicle", function(req, res) {
@@ -64,7 +60,7 @@ app.post("/vehicle_add", function(req, res) {
         .database()
         .ref("/" + user.uid)
         .update({
-          email: user.email,
+          email: user.email
         });
       firebase
         .database()
@@ -78,8 +74,36 @@ app.post("/vehicle_add", function(req, res) {
           fuelTankTotal: fuelTank
         });
       console.log("New Vehicle Added!");
-      req.flash("success", "New Vehicle Added!")
+      req.flash("success", "New Vehicle Added!");
       res.redirect("/home");
+    }
+  });
+});
+
+var childData = [];
+
+app.get("/dashboard_cards", function(req, res) {
+  var childData = [];
+
+  function snapshotToArray(snapshot) {
+    var returnArr = [];
+
+    snapshot.forEach(function(childSnapshot) {
+      var item = childSnapshot.val();
+      item.key = childSnapshot.key;
+
+      returnArr.push(item);
+    });
+
+    return returnArr;
+  }
+
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+      var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
+      currentUserDatabase.on("value", function(snapshot) {
+        res.render("dashboard_cards.ejs", {childData: snapshotToArray(snapshot)})
+      });
     }
   });
 });
@@ -110,10 +134,10 @@ app.post("/register", function(req, res) {
   firebase
     .auth()
     .createUserWithEmailAndPassword(email, password)
-    .then(function(user){
-        console.log("New user created and logged in!");
-        req.flash("success", "Successfully created and logged in!");
-        res.redirect("/home");
+    .then(function(user) {
+      console.log("New user created and logged in!");
+      req.flash("success", "Successfully created and logged in!");
+      res.redirect("/home");
     })
     .catch(function(error) {
       console.log(error.code);
