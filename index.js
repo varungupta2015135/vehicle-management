@@ -1,9 +1,12 @@
 var express = require("express");
+var bodyParser = require("body-parser");
 var app = express();
 var firebase = require("firebase");
 
-app.use(express.static(__dirname + '/public'));
+app.use(bodyParser.urlencoded({ extended: true }))
 
+app.use(express.static(__dirname + '/public'));
+// parse application/json
 // Your web app's Firebase configuration
 var firebaseConfig = {
   apiKey: "AIzaSyApsFPxfBl6mNEjv6LPpDAuxinaYZQkmNE",
@@ -31,6 +34,14 @@ app.get("/home", function(req, res){
     res.render("home.ejs");
 })
 
-var server = app.listen(8000, function() {
+app.get("/add_vehicle", function(req, res){
+    res.render("add_vehicle.ejs");
+})
+
+app.post("/vehicle_add", function(req, res){
+    console.log(req.body.company_name);
+})
+
+app.listen(8000, function() {
   console.log("Server running at port 8000");
 });

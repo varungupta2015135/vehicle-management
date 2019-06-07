@@ -1,0 +1,61 @@
+<% include partials/header.ejs %>
+
+<form method="POST" action="/vehicle_add">
+  <div class="row">
+    <div class="col">
+      <div class="form-group">
+        <label for="Company">Company</label>
+        <input
+          type="text"
+          class="form-control"
+          id="Company"
+          name="company_name"
+          aria-describedby="emailHelp"
+          placeholder="Enter Company Name (Ex: Toytoa, Maruti Suzuki etc..)"
+        />
+      </div>
+      <div class="form-group">
+        <label for="model">Model</label>
+        <input
+          type="text"
+          class="form-control"
+          id="model"
+          placeholder="Enter Model Name (Ex: SX4, Fortuner etc..)"
+        />
+      </div>
+      <div class="form-group">
+        <label for="make">Make</label>
+        <input
+          type="text"
+          class="form-control"
+          id="make"
+          aria-describedby="petrol/diesel/cng"
+          placeholder="Enter the Make (Ex: Petrol, Dieset, CNG)"
+        />
+      </div>
+      <div class="form-group">
+        <label for="mileage">Initial Mileage</label>
+        <input
+          type="text"
+          class="form-control"
+          id="mileage"
+          aria-describedby="initial mileage"
+          placeholder="Enter current mileage you get (In KM/L)"
+        />
+      </div>
+      <div class="form-group">
+        <label for="distance">Distance Travelled</label>
+        <input
+          type="text"
+          class="form-control"
+          id="distance"
+          aria-describedby="distance travelled already"
+          placeholder="Enter the Odometer reading (in KMs)"
+        />
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+  </div>
+</form>
+
+<% include partials/footer.ejs %>
