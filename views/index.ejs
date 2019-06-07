@@ -1,11 +1,135 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>
-      Vehicle Management: Home Page
-    </title>
+    <title>Vehicle Managment: Landing Page</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
   </head>
-  <body>
-    <h1>Home</h1>
+  <body style="background-image: url('https://images.unsplash.com/photo-1517953377824-516f2dca803b?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1325&q=80')">
+    <div class="container">
+            <div>
+              <h1 style="text-align: center; color: white; background-repeat: no-repeat; background-position: center center;">Vehicle Management</h1>
+            </div>
+                <div class="row">
+                    <div class="col s6 offset-s3">
+                        <div class="card grey lighten-3 center-align" style="max-width: 400px">
+                            <div class="card-content">
+                                <div class="card-tabs">
+                                    <ul class="tabs tabs-fixed-width grey lighten-3">
+                                        <li class="tab"><a class="active" href="#login-form">Login</a></li>
+                                        <li class="tab"><a href="#signup-form">Signup</a></li>
+                                    </ul>
+                                </div>
+                                <div class="row"></div>
+                                <form id="login-form" action="/login" method="POST">
+                                    <div class="row">
+                                        <div class="input-field col s12">
+                                            <input name="email" id="email" type="email" class="validate" required>
+                                            <label for="email">Email</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="input-field col s12">
+                                            <input name = "password" id="password" type="password" class="validate" minlength="6" required>
+                                            <label for="password">Password</label>
+                                        </div>
+                                    </div>
+                                    <% if(error && error.length > 0){ %>
+                                        <%= error %>
+                                    <% } %>
+                                    <div class="row">
+                                        <div class="input-field col s12">
+                                            <button class="btn btn-large btn-register waves-effect waves-light" type="submit" name="action">Login</button>
+                                        </div>
+                                    </div>
+                                </form>
+                                <form id="signup-form" action="/register" method="POST">
+                                    <div class="row">
+                                        <div class="input-field col s12">
+                                            <input name ="email" id="email" type="email" class="validate" required>
+                                            <label for="email">Email</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="input-field col s12">
+                                            <input name="password" id="password" type="password" class="validate" minlength="6" required>
+                                            <label for="password">Password</label>
+                                        </div>
+                                    </div>
+                                    <% if(error && error.length > 0){ %>
+                                        <%= error %>
+                                    <% } %>
+                                    <div class="row">
+                                        <div class="input-field col s12">
+                                            <button class="btn btn-large btn-register waves-effect waves-light" type="submit" name="action">Register</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <!-- <div class="row">
+                <div class="row"></div>
+              <div class="col s3"></div>
+              <div class="col s3">
+                <a href="#test1" onclick="display(1)" style="font-size: 180%;text-align: center">LOGIN</a>
+              </div>
+              <div class="col s1"></div>
+              <div class="col s3">
+                <a href="#test2" onclick="display(2)" style="font-size: 180%; text-align: center">SIGN-UP</a>
+              </div>
+            </div>
+              <div class="row">
+                  <div class="col s3"></div>
+                  <form class="col s6" id="login-form" action="/login" method="POST">
+                    <div class="row">
+                      <div class="input-field col s12">
+                        <input name="email" id="email" type="email" class="validate" required>
+                        <label for="email">Email</label>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="input-field col s12">
+                        <input name = "password" id="password" type="password" class="validate" minlength="6" required>
+                        <label for="password">Password</label>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="input-field col s6">
+                        <button class="btn btn-large btn-register waves-effect waves-light" type="submit" name="action">Login
+                        </button>
+                      </div>
+                    </div>
+                    </form>
+                    <form class="col s6" id="reg-form" style="display: none" action="/register" method="POST">
+                        <div class="row">
+                          <div class="input-field col s12">
+                            <input name ="email" id="email" type="email" class="validate" required>
+                            <label for="email">Email</label>
+                          </div>
+                        </div>
+
+                        <div class="row">
+                          <div class="input-field col s12">
+                            <input name="password" id="password" type="password" class="validate" minlength="6" required>
+                            <label for="password">Password</label>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="input-field col s12">
+                            <button class="btn btn-large btn-register waves-effect waves-light" type="submit" name="action">Register
+                            </button>
+                          </div>
+                        </div>
+                  </form>
+                </div>
+              </div> -->
+      </body>
   </body>
 </html>
