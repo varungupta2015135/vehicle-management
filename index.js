@@ -80,6 +80,37 @@ app.post("/vehicle_add", function(req, res) {
   });
 });
 
+app.get("/startAndStopSession", function(req,res,session){
+  var id = req.body.id;
+  firebase.auth().onAuthStateChanged(function(user){
+    if(user){
+      var vehicleDetails = firebase.database().ref(user.uid + "/Vehicle/" + id);
+      console.log(vehicleDetails.odometerReading);
+      var update;
+      var timeStamp;
+      if(session == "start"){
+        update = setInterval(updateValues(vehicleDetails),1000);
+        console.log(update);
+      }
+      else if(session == "stop"){
+        console.log(timeStamp);
+        clearInterval(update);
+        vehicleDetails.update({
+            odometerReading : odoReading,
+        });
+      }
+      function updateValues(vehicleDetails){
+        var date = new Date();
+        var odoReading = vehicleDetails.odometerReading;
+        odoReading++;
+        console.log(odoReading);
+        timeStamp = date.toLocaleDateString();
+        console.log(timeStamp);
+      }
+    }
+  })
+});
+
 var childData = [];
 
 app.get("/drive_session", function(req, res) {
