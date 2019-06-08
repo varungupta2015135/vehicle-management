@@ -82,6 +82,34 @@ app.post("/vehicle_add", function(req, res) {
 
 var childData = [];
 
+app.get("/drive_session", function(req, res) {
+  console.log("Drive session!");
+
+  function snapshotToArray(snapshot) {
+    var returnArr = [];
+
+    snapshot.forEach(function(childSnapshot) {
+      var item = childSnapshot.val();
+      item.key = childSnapshot.key;
+
+      returnArr.push(item);
+    });
+
+    return returnArr;
+  }
+
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+      var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
+      currentUserDatabase.on("value", function(snapshot) {
+        res.render("drive_session.ejs", {
+          childData: snapshotToArray(snapshot)
+        });
+      });
+    }
+  });
+});
+
 app.get("/dashboard_cards", function(req, res) {
   var childData = [];
 
@@ -102,7 +130,9 @@ app.get("/dashboard_cards", function(req, res) {
     if (user) {
       var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
       currentUserDatabase.on("value", function(snapshot) {
-        res.render("dashboard_cards.ejs", {childData: snapshotToArray(snapshot)})
+        res.render("dashboard_cards.ejs", {
+          childData: snapshotToArray(snapshot)
+        });
       });
     }
   });
