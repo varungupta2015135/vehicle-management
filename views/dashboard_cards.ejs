@@ -1,73 +1,34 @@
 <% include partials/header.ejs %>
 
-<<<<<<< HEAD
 <div class="row">
-  <% console.log(childData.length) %> <% childData.forEach(function(item){ %>
-  <div class="col">
-    <div class="card mx-auto" style="width: 18rem;">
-      <div class="card-body">
-        <h5 class="card-title"><%= item.company %> <%= item.model %></h5>
-        <h6 class="card-subtitle mb-2 text-muted">
-          Current Mileage: <%= item.iMileage %>
-        </h6>
-        <a href="/getVehicleID?id=<%= item.key %>" class="card-link"
-          >View Details</a
-        >
-      </div>
+    <% console.log(childData.length) %> <% childData.forEach(function(item){ %>
+    <div class="col">
+        <div class="card mx-auto" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title"><%= item.company %> <%= item.model %></h5>
+                <h6 class="card-subtitle mb-2 text-muted">
+                    Current Mileage: <%= item.iMileage %>
+                </h6>
+                <a href="/getVehicleID?id=<%= item.key %>" class="card-link">View Details</a>
+            </div>
+        </div>
     </div>
-  </div>
-  <% }) %>
+    <% }) %>
 </div>
 <% if(childData.length > 1){ %>
 <br />
-<div class="row">
-  <div class="col">
-    <button type="button" class="btn btn-info">
-      Click here for combined metrics
-    </button>
-  </div>
+<div class="row" style="text-align: center">
+    <div class="col">
+        <a role="button" href="/combinedGraph" class="btn btn-info">
+            Click here for combined metrics
+        </a>
+    </div>
+    <% } %>
+    <div class="col">
+        <a role="button" href="/" class="btn btn-info">
+            Compare All
+        </a>
+    </div>
 </div>
-<% } %> <% include partials/footer.ejs %>
-=======
-<!-- <% childData.forEach(function(item){  %>
-<%= item.company  %>
-<% }) %> -->
-<div id="myDiv">
-    
-</div>
-<script>
-    var bar = []
-    var vehicle_omreading = []
-    var vehicle_mlg = []
-    var vehicle_name = []
-    var items = <%-JSON.stringify(childData)%>;
-    for(var k=0 ; k < items.length; k++){
-        vehicle_omreading.push(parseInt((items[k].odometerReading),10));
-        vehicle_mlg.push(parseInt((items[k].iMileage),10));
-        vehicle_name.push(items[k].company + items[k].model);
-    }
-
-    console.log(vehicle_omreading)
-    console.log(vehicle_mlg)
-    console.log(vehicle_name)
-    bar.push(
-        {
-        x:vehicle_name,
-        y:vehicle_omreading,
-        name:"odometerReading",
-        type:"bar"
-        }
-    );
-    bar.push({
-        x:vehicle_name,
-        y:vehicle_mlg,
-        name:"mileage",
-        type:"bar"
-    });
-    console.log(bar);
-    var layout = {barmode: 'group'};
-    Plotly.newPlot('myDiv', bar, layout, {}, {showSendToCloud:true});
-</script>
 
 <% include partials/footer.ejs  %>
->>>>>>> nisha

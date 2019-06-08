@@ -122,13 +122,8 @@ app.get("/startAndStopSession", function(req,res){
 
 var childData = [];
 
-<<<<<<< HEAD
 app.get("/drive_session", function(req, res) {
   console.log("Drive session!");
-=======
-app.get("/combinedGraph", function(req, res){
-  var childData = [];
->>>>>>> nisha
 
   function snapshotToArray(snapshot) {
     var returnArr = [];
@@ -146,7 +141,6 @@ app.get("/combinedGraph", function(req, res){
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
       var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
-<<<<<<< HEAD
       currentUserDatabase.on("value", function(snapshot) {
         res.render("drive_session.ejs", {
           childData: snapshotToArray(snapshot)
@@ -155,24 +149,43 @@ app.get("/combinedGraph", function(req, res){
     }
   });
 });
-=======
+
+
+app.get("/combinedGraph", function(req, res){
+  var childData = [];
+
+  function snapshotToArray(snapshot) {
+    var returnArr = [];
+
+    snapshot.forEach(function(childSnapshot) {
+      var item = childSnapshot.val();
+      item.key = childSnapshot.key;
+
+      returnArr.push(item);
+    });
+
+    return returnArr;
+  }
+  
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
       var email,odometerReading,iMileage;
-      var allVehicle= [];
-      currentUserDatabase.on("value", function(snapshot) {
-        email=user.email;
-        var vehicle = snapshot.key;
-        snapshot.forEach(function(childSnapshot) {
-          var item = childSnapshot.val();
-          item.key = childSnapshot.key;
-          item.type = 'bar';  
-          allVehicle.push(item);
-        });
-        res.render("dashboard_cards.ejs", {childData: snapshotToArray(snapshot), vehicle: allVehicle});
-      });
-    }
+  var allVehicle= [];
+  var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
+  currentUserDatabase.on("value", function(snapshot) {
+    email=user.email;
+    var vehicle = snapshot.key;
+    snapshot.forEach(function(childSnapshot) {
+      var item = childSnapshot.val();
+      item.key = childSnapshot.key;
+      item.type = 'bar';  
+      allVehicle.push(item);
+    });
+    res.render("dashboard_combined.ejs", {childData: snapshotToArray(snapshot), vehicle: allVehicle});
   });
-})
->>>>>>> nisha
+}
+  });
+});
 
 app.get("/dashboard_cards", function(req, res) {
 
@@ -195,31 +208,14 @@ app.get("/dashboard_cards", function(req, res) {
       var email,odometerReading,iMileage;
       var allVehicle= [];
       currentUserDatabase.on("value", function(snapshot) {
-<<<<<<< HEAD
         res.render("dashboard_cards.ejs", {
           childData: snapshotToArray(snapshot)
         });
-=======
-        email=user.email;
-        var vehicle = snapshot.key;
-        snapshot.forEach(function(childSnapshot) {
-          var item = childSnapshot.val();
-          item.key = childSnapshot.key;
-          item.type = 'bar';  
-          allVehicle.push(item);
-        });
-        res.render("dashboard_cards.ejs", {childData: snapshotToArray(snapshot), vehicle: allVehicle});
->>>>>>> nisha
       });
     }
   });
 });
 
-<<<<<<< HEAD
-app.get("/getVehicleID", function(req, res){
-  console.log(req.query.id);
-})
-=======
 app.get("/getVehicleId",function(req,res)
 {
   var id = req.query.id;
@@ -228,11 +224,13 @@ app.get("/getVehicleId",function(req,res)
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
       var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle/"+ id);
-      res.render("dashboard_indivudual.ejs", {childData: snapshot.val()});
- }
+      currentUserDatabase.on("value", function(snapshot) {
+        res.render("dashboard_individual.ejs", {
+          childData: snapshot.val()});
+        });
+      }
+    });
   });
-});
->>>>>>> nisha
 
 app.post("/login", function(req, res) {
   const username = req.body.email;
