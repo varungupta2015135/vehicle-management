@@ -254,7 +254,7 @@ app.post("/login", function(req, res) {
 app.post("/register", function(req, res) {
   var email = req.body.email;
   var password = req.body.password;
-
+  console.log("Registered!");
   firebase
     .auth()
     .createUserWithEmailAndPassword(email, password)
