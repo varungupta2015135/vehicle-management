@@ -1,0 +1,21 @@
+<% include partials/header.ejs %>
+
+<!-- <% childData.forEach(function(item){  %>
+<%= item.company  %>
+<% }) %> -->
+<div id="myCar">
+    
+</div>
+<script>
+var item = <%-JSON.stringify(childData)%>;
+var data = [
+    {
+        x: ["OdoMeterReading", "Mileage"],
+        y: [item.odometerReading, item.iMileage],
+        type: 'bar'
+    }
+];
+Plotly.newPlot('myCar', data);
+</script>
+
+<% include partials/footer.ejs  %>

@@ -5,6 +5,8 @@ var uuid = require("uuid/v4");
 var firebase = require("firebase");
 var flash = require("connect-flash");
 app.use(bodyParser.urlencoded({ extended: true }));
+var Plotly = require("plotly");
+
 app.use(
   require("express-session")({
     secret: "yolosolo",
@@ -120,8 +122,13 @@ app.get("/startAndStopSession", function(req,res){
 
 var childData = [];
 
+<<<<<<< HEAD
 app.get("/drive_session", function(req, res) {
   console.log("Drive session!");
+=======
+app.get("/combinedGraph", function(req, res){
+  var childData = [];
+>>>>>>> nisha
 
   function snapshotToArray(snapshot) {
     var returnArr = [];
@@ -139,6 +146,7 @@ app.get("/drive_session", function(req, res) {
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
       var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
+<<<<<<< HEAD
       currentUserDatabase.on("value", function(snapshot) {
         res.render("drive_session.ejs", {
           childData: snapshotToArray(snapshot)
@@ -147,6 +155,24 @@ app.get("/drive_session", function(req, res) {
     }
   });
 });
+=======
+      var email,odometerReading,iMileage;
+      var allVehicle= [];
+      currentUserDatabase.on("value", function(snapshot) {
+        email=user.email;
+        var vehicle = snapshot.key;
+        snapshot.forEach(function(childSnapshot) {
+          var item = childSnapshot.val();
+          item.key = childSnapshot.key;
+          item.type = 'bar';  
+          allVehicle.push(item);
+        });
+        res.render("dashboard_cards.ejs", {childData: snapshotToArray(snapshot), vehicle: allVehicle});
+      });
+    }
+  });
+})
+>>>>>>> nisha
 
 app.get("/dashboard_cards", function(req, res) {
 
@@ -166,18 +192,47 @@ app.get("/dashboard_cards", function(req, res) {
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
       var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
+      var email,odometerReading,iMileage;
+      var allVehicle= [];
       currentUserDatabase.on("value", function(snapshot) {
+<<<<<<< HEAD
         res.render("dashboard_cards.ejs", {
           childData: snapshotToArray(snapshot)
         });
+=======
+        email=user.email;
+        var vehicle = snapshot.key;
+        snapshot.forEach(function(childSnapshot) {
+          var item = childSnapshot.val();
+          item.key = childSnapshot.key;
+          item.type = 'bar';  
+          allVehicle.push(item);
+        });
+        res.render("dashboard_cards.ejs", {childData: snapshotToArray(snapshot), vehicle: allVehicle});
+>>>>>>> nisha
       });
     }
   });
 });
 
+<<<<<<< HEAD
 app.get("/getVehicleID", function(req, res){
   console.log(req.query.id);
 })
+=======
+app.get("/getVehicleId",function(req,res)
+{
+  var id = req.query.id;
+  console.log("Individual Vehicle");
+  
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+      var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle/"+ id);
+      res.render("dashboard_indivudual.ejs", {childData: snapshot.val()});
+ }
+  });
+});
+>>>>>>> nisha
 
 app.post("/login", function(req, res) {
   const username = req.body.email;
