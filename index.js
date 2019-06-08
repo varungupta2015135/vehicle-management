@@ -87,6 +87,66 @@ app.post("/vehicle_add", function(req, res) {
   });
 });
 
+app.get("/startAndStopSession", function(req,res){
+  var id = req.body.id;
+  firebase.auth().onAuthStateChanged(function(user){
+    if(user){
+      var vehicleDetails = firebase.database().ref(user.uid + "/Vehicle/" + id);
+      console.log(vehicleDetails.odometerReading);
+      var update;
+      var timeStamp;
+      if(session == "start"){
+        update = setInterval(updateValues(vehicleDetails),1000);
+        console.log(update);
+      }
+      else if(session == "stop"){
+        console.log(timeStamp);
+        clearInterval(update);
+        vehicleDetails.update({
+            odometerReading : odoReading,
+        });
+      }
+      function updateValues(vehicleDetails){
+        var date = new Date();
+        var odoReading = vehicleDetails.odometerReading;
+        odoReading++;
+        console.log(odoReading);
+        timeStamp = date.toLocaleDateString();
+        console.log(timeStamp);
+      }
+    }
+  })
+});
+
+var childData = [];
+
+app.get("/drive_session", function(req, res) {
+  console.log("Drive session!");
+
+  function snapshotToArray(snapshot) {
+    var returnArr = [];
+
+    snapshot.forEach(function(childSnapshot) {
+      var item = childSnapshot.val();
+      item.key = childSnapshot.key;
+
+      returnArr.push(item);
+    });
+
+    return returnArr;
+  }
+
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+      var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
+      currentUserDatabase.on("value", function(snapshot) {
+        res.render("drive_session.ejs", {
+          childData: snapshotToArray(snapshot)
+        });
+      });
+    }
+  });
+});
 
 app.get("/dashboard_cards", function(req, res) {
 
@@ -107,7 +167,9 @@ app.get("/dashboard_cards", function(req, res) {
     if (user) {
       var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
       currentUserDatabase.on("value", function(snapshot) {
-        res.render("dashboard_cards.ejs", {childData: snapshotToArray(snapshot)})
+        res.render("dashboard_cards.ejs", {
+          childData: snapshotToArray(snapshot)
+        });
       });
     }
   });

@@ -1,0 +1,32 @@
+<% include partials/header.ejs %>
+
+    <div class="accordion" id="accordionExample">
+        <% childData.forEach(function(item){ %>
+            <div class="card">
+                <div class="card-header" id="headingOne<%=item.key %>">
+                    <h2 class="mb-0">
+                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne<%=item.key %>" aria-expanded="false"
+                            aria-controls="collapseOne<%=item.key %>">
+          <%= item.company %> <%= item.model %>
+        </button>
+                    </h2>
+                </div>
+
+                <div id="collapseOne<%=item.key %>" class="collapse" aria-labelledby="headingOne<%=item.key %>" data-parent="#accordionExample">
+                    <div class="card-body">
+                        <div class="input-group mb-3 ">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text mx-auto md-flex" id="basic-addon1">Initial Fuel</span>
+                            </div>
+                            <input type="text" class="form-control mx-auto" placeholder="Fuel available in percentage" aria-label="Username" aria-describedby="basic-addon1">
+                        </div>
+                        <div class="text-center">
+                            <button type="button" class="btn btn-success">Start</button>
+                            <button type="button" class="btn btn-danger">Stop</button>
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+
+            <% include partials/footer.ejs %>
