@@ -12,7 +12,7 @@ app.use(
     saveUninitialized: false
   })
 );
-app.use(express.static(__dirname + "/public"));
+
 app.use(flash());
 
 app.use(function(req, res, next) {
@@ -20,6 +20,13 @@ app.use(function(req, res, next) {
   res.locals.success = req.flash("success");
   next();
 });
+
+
+app.use(express.static(__dirname + "/public"));
+
+app.get("/start", function(req, res){
+
+})
 
 // parse application/json
 // Your web app's Firebase configuration
@@ -80,10 +87,8 @@ app.post("/vehicle_add", function(req, res) {
   });
 });
 
-var childData = [];
 
 app.get("/dashboard_cards", function(req, res) {
-  var childData = [];
 
   function snapshotToArray(snapshot) {
     var returnArr = [];
@@ -107,6 +112,10 @@ app.get("/dashboard_cards", function(req, res) {
     }
   });
 });
+
+app.get("/getVehicleID", function(req, res){
+  console.log(req.query.id);
+})
 
 app.post("/login", function(req, res) {
   const username = req.body.email;
