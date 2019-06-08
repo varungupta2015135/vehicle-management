@@ -4,8 +4,8 @@ var app = express();
 var uuid = require("uuid/v4");
 var firebase = require("firebase");
 var flash = require("connect-flash");
+app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
-var Plotly = require("plotly");
 
 app.use(
   require("express-session")({
@@ -20,15 +20,11 @@ app.use(flash());
 app.use(function(req, res, next) {
   res.locals.error = req.flash("error");
   res.locals.success = req.flash("success");
+  res.locals.currentUser = firebase.auth().currentUser;
   next();
 });
 
-
 app.use(express.static(__dirname + "/public"));
-
-app.get("/start", function(req, res){
-
-})
 
 // parse application/json
 // Your web app's Firebase configuration
@@ -44,16 +40,54 @@ var firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
+//helper function
+function snapshotToArray(snapshot) {
+  var returnArr = [];
+
+  snapshot.forEach(function(childSnapshot) {
+    var item = childSnapshot.val();
+    item.key = childSnapshot.key;
+
+    returnArr.push(item);
+  });
+
+  return returnArr;
+}
+
+/////---------------------------------/////
+//////////////LandingPageRoute/////////////
+/////---------------------------------/////
+
 app.get("/", function(req, res) {
-  res.render("index.ejs");
+  if (firebase.auth().currentUser != null) {
+    res.redirect("/home");
+  } else {
+    res.render("index");
+  }
 });
+
+/////---------------------------------/////
+////////////////HomeRoute//////////////////
+/////---------------------------------/////
 
 app.get("/home", function(req, res) {
-  res.render("home.ejs");
+  if (firebase.auth().currentUser != null) {
+    res.render("home");
+  } else {
+    res.redirect("/");
+  }
 });
 
+/////---------------------------------/////
+//////////////VehicleRoutes////////////////
+/////---------------------------------/////
+
 app.get("/add_vehicle", function(req, res) {
-  res.render("add_vehicle.ejs");
+  if (firebase.auth().currentUser != null) {
+    res.render("add_vehicle");
+  } else {
+    res.redirect("/");
+  }
 });
 
 app.post("/vehicle_add", function(req, res) {
@@ -63,174 +97,138 @@ app.post("/vehicle_add", function(req, res) {
   var iMileage = req.body.initial_mileage;
   var odometerReading = req.body.odometer_reading;
   var fuelTank = req.body.fuel_capacity;
-  firebase.auth().onAuthStateChanged(function(user) {
-    if (user) {
-      firebase
-        .database()
-        .ref("/" + user.uid)
-        .update({
-          email: user.email
-        });
-      firebase
-        .database()
-        .ref("/" + user.uid + "/Vehicle/" + uuid())
-        .update({
-          company: company,
-          model: model,
-          make: make,
-          iMileage: iMileage,
-          odometerReading: odometerReading,
-          fuelTankTotal: fuelTank
-        });
-      console.log("New Vehicle Added!");
-      req.flash("success", "New Vehicle Added!");
-      res.redirect("/home");
-    }
-  });
+  var vendorEmail = req.body.vendor_email;
+  if (firebase.auth().currentUser != null) {
+    var user = firebase.auth().currentUser;
+    firebase
+      .database()
+      .ref("/" + user.uid)
+      .update({
+        email: user.email
+      });
+    firebase
+      .database()
+      .ref("/" + user.uid + "/Vehicle/" + uuid())
+      .update({
+        company: company,
+        model: model,
+        make: make,
+        iMileage: iMileage,
+        odometerReading: odometerReading,
+        fuelTankTotal: fuelTank,
+        vendorEmail: vendorEmail
+      });
+    req.flash("success", "New Vehicle Added!");
+    res.redirect("/home");
+  }
 });
 
-app.get("/startAndStopSession", function(req,res){
-  var id = req.body.id;
-  firebase.auth().onAuthStateChanged(function(user){
-    if(user){
-      var vehicleDetails = firebase.database().ref(user.uid + "/Vehicle/" + id);
-      console.log(vehicleDetails.odometerReading);
-      var update;
-      var timeStamp;
-      if(session == "start"){
-        update = setInterval(updateValues(vehicleDetails),1000);
-        console.log(update);
-      }
-      else if(session == "stop"){
-        console.log(timeStamp);
-        clearInterval(update);
-        vehicleDetails.update({
-            odometerReading : odoReading,
-        });
-      }
-      function updateValues(vehicleDetails){
-        var date = new Date();
-        var odoReading = vehicleDetails.odometerReading;
-        odoReading++;
-        console.log(odoReading);
-        timeStamp = date.toLocaleDateString();
-        console.log(timeStamp);
-      }
-    }
-  })
+/////---------------------------------/////
+/////////////DashboardRoutes///////////////
+/////---------------------------------/////
+
+app.get("/dashboard", function(req, res) {
+  if (firebase.auth().currentUser != null) {
+    var user = firebase.auth().currentUser;
+    var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
+    currentUserDatabase.on("value", function(snapshot) {
+      res.render("dashboard", {
+        childData: snapshotToArray(snapshot)
+      });
+    });
+  } else {
+    res.redirect("/");
+  }
 });
 
-var childData = [];
+app.get("/combinedGraph", function(req, res) {
+  if (firebase.auth().currentUser != null) {
+    var user = firebase.auth().currentUser;
+    var allVehicle = [];
+    var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
+    currentUserDatabase.on("value", function(snapshot) {
+      snapshot.forEach(function(childSnapshot) {
+        var item = childSnapshot.val();
+        item.key = childSnapshot.key;
+        item.type = "bar";
+        allVehicle.push(item);
+      });
+      res.render("dashboard_combined", {
+        childData: snapshotToArray(snapshot),
+        vehicle: allVehicle
+      });
+    });
+  } else {
+    res.redirect("/");
+  }
+});
+
+
+app.get("/individualGraph", function(req, res) {
+  if (firebase.auth().currentUser != null) {
+    var id = req.query.id;
+    var user = firebase.auth().currentUser;
+    var currentUserDatabase = firebase
+      .database()
+      .ref(user.uid + "/Vehicle/" + id);
+    currentUserDatabase.on("value", function(snapshot) {
+      res.render("dashboard_individual", {
+        childData: snapshot.val()
+      });
+    });
+  }
+});
+
+/////---------------------------------/////
+//////////////SessionRoutes////////////////
+/////---------------------------------/////
 
 app.get("/drive_session", function(req, res) {
-  console.log("Drive session!");
-
-  function snapshotToArray(snapshot) {
-    var returnArr = [];
-
-    snapshot.forEach(function(childSnapshot) {
-      var item = childSnapshot.val();
-      item.key = childSnapshot.key;
-
-      returnArr.push(item);
+  if (firebase.auth().currentUser != null) {
+    var user = firebase.auth().currentUser;
+    var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
+    currentUserDatabase.on("value", function(snapshot) {
+      res.render("drive_session", {
+        childData: snapshotToArray(snapshot)
+      });
     });
-
-    return returnArr;
   }
+});
 
-  firebase.auth().onAuthStateChanged(function(user) {
-    if (user) {
-      var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
-      currentUserDatabase.on("value", function(snapshot) {
-        res.render("drive_session.ejs", {
-          childData: snapshotToArray(snapshot)
-        });
+app.get("/startAndStopSession", function(req, res) {
+  if (firebase.auth().currentUser != null) {
+    var user = firebase.auth().currentUser;
+    var id = req.body.id;
+    var vehicleDetails = firebase.database().ref(user.uid + "/Vehicle/" + id);
+    var update;
+    var timeStamp;
+    if (session == "start") {
+      update = setInterval(updateValues(vehicleDetails), 1000);
+      console.log(update);
+    } else if (session == "stop") {
+      console.log(timeStamp);
+      clearInterval(update);
+      vehicleDetails.update({
+        odometerReading: odoReading
       });
     }
-  });
-});
-
-
-app.get("/combinedGraph", function(req, res){
-  var childData = [];
-
-  function snapshotToArray(snapshot) {
-    var returnArr = [];
-
-    snapshot.forEach(function(childSnapshot) {
-      var item = childSnapshot.val();
-      item.key = childSnapshot.key;
-
-      returnArr.push(item);
-    });
-
-    return returnArr;
-  }
-  
-  firebase.auth().onAuthStateChanged(function(user) {
-    if (user) {
-      var email,odometerReading,iMileage;
-  var allVehicle= [];
-  var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
-  currentUserDatabase.on("value", function(snapshot) {
-    email=user.email;
-    var vehicle = snapshot.key;
-    snapshot.forEach(function(childSnapshot) {
-      var item = childSnapshot.val();
-      item.key = childSnapshot.key;
-      item.type = 'bar';  
-      allVehicle.push(item);
-    });
-    res.render("dashboard_combined.ejs", {childData: snapshotToArray(snapshot), vehicle: allVehicle});
-  });
-}
-  });
-});
-
-app.get("/dashboard_cards", function(req, res) {
-
-  function snapshotToArray(snapshot) {
-    var returnArr = [];
-
-    snapshot.forEach(function(childSnapshot) {
-      var item = childSnapshot.val();
-      item.key = childSnapshot.key;
-
-      returnArr.push(item);
-    });
-
-    return returnArr;
-  }
-
-  firebase.auth().onAuthStateChanged(function(user) {
-    if (user) {
-      var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
-      var email,odometerReading,iMileage;
-      var allVehicle= [];
-      currentUserDatabase.on("value", function(snapshot) {
-        res.render("dashboard_cards.ejs", {
-          childData: snapshotToArray(snapshot)
-        });
-      });
+    function updateValues(vehicleDetails) {
+      var date = new Date();
+      var odoReading = vehicleDetails.odometerReading;
+      odoReading++;
+      console.log(odoReading);
+      timeStamp = date.toLocaleDateString();
+      console.log(timeStamp);
     }
-  });
+  } else {
+    res.redirect("/");
+  }
 });
 
-app.get("/getVehicleId",function(req,res)
-{
-  var id = req.query.id;
-  console.log("Individual Vehicle");
-  
-  firebase.auth().onAuthStateChanged(function(user) {
-    if (user) {
-      var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle/"+ id);
-      currentUserDatabase.on("value", function(snapshot) {
-        res.render("dashboard_individual.ejs", {
-          childData: snapshot.val()});
-        });
-      }
-    });
-  });
+/////---------------------------------/////
+////////////////AuthRoutes/////////////////
+/////---------------------------------/////
+
 
 app.post("/login", function(req, res) {
   const username = req.body.email;

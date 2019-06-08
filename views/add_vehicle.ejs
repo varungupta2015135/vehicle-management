@@ -1,6 +1,11 @@
 <% include partials/header.ejs %>
 
-<form method="POST" action="/vehicle_add">
+<form action="/vehicle_add" method="POST">
+  <div class="row" style="text-align: center">
+    <div class="col">
+      <h3>We just wanna grab some details..</h3>
+    </div>
+  </div>
   <div class="row">
     <div class="col">
       <div class="form-group">
@@ -59,14 +64,25 @@
       </div>
       <div class="form-group">
         <label for="fuelTank">Fuel Tank Capacity</label>
-            <input
-              type="text"
-              class="form-control"
-              id="fuelTank"
-              name="fuel_capacity"
-              aria-describedby="total fuel tank capacity"
-              placeholder="Enter the total fuel tank capacity (in Ls)"
-            />
+        <input
+          type="text"
+          class="form-control"
+          id="fuelTank"
+          name="fuel_capacity"
+          aria-describedby="total fuel tank capacity"
+          placeholder="Enter the total fuel tank capacity (in Ls)"
+        />
+      </div>
+      <div class="form-group">
+        <label for="vId">Vendor email ID</label>
+        <input
+          type="text"
+          class="form-control"
+          id="vId"
+          name="vendor_email"
+          aria-describedby="email id of the vendor"
+          placeholder="Enter the email id of your vendor"
+        />
       </div>
       <button type="submit" class="btn btn-primary">Submit</button>
     </div>

@@ -1,7 +1,7 @@
 <% include partials/header.ejs %>
 
 <div class="row">
-    <% console.log(childData.length) %> <% childData.forEach(function(item){ %>
+    <% childData.forEach(function(item){ %>
     <div class="col">
         <div class="card mx-auto" style="width: 18rem;">
             <div class="card-body">
@@ -9,7 +9,7 @@
                 <h6 class="card-subtitle mb-2 text-muted">
                     Current Mileage: <%= item.iMileage %>
                 </h6>
-                <a href="/getVehicleID?id=<%= item.key %>" class="card-link">View Details</a>
+                <a href="/individualGraph?id=<%= item.key %>" class="card-link">View Details</a>
             </div>
         </div>
     </div>
