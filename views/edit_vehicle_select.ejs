@@ -1,8 +1,11 @@
 <% include partials/header %>
 
 <div class="row" style="text-align: center">
-  <% childData.forEach(function(item){ %> <% if(typeof item == "object"){ %>
-  <div class="card" style="width: 18rem;">
+  <% if(childData.length > 0){ %> <% childData.forEach(function(item){ %>
+  <div
+    class="card shadow p-3 mb-5 bg-white rounded mx-auto"
+    style="width: 18rem;"
+  >
     <div class="card-body">
       <h5 class="card-title"><%= item.company %> <%= item.model %></h5>
       <p class="card-text">
@@ -13,7 +16,13 @@
       >
     </div>
   </div>
-  <% }%> <% }) %>
+  <% }) %> <% }else{ %>
+  <div class="col">
+    <br /><br /><br /><br /><br /><br />
+    <h3>Sorry, no vehicles to display</h3>
+    <h3>: (</h3>
+  </div>
+  <% } %>
 </div>
 
 <% include partials/footer %>

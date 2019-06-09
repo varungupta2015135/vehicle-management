@@ -1,24 +1,29 @@
 <% include partials/header %>
-<h3 style="text-align: center">Session Details</h3>
-<br><br>
-<div class="row" style="text-align: center">
 
-    <% var length = childData.length %>
-    <% console.log(childData[0]) %>
+<div class="row" style="text-align: center">
+  <% var length = childData.length %>
+  <% if(length != 0){ %>
     <% for(var i=0; i<length; i++) { %>
         <div class="col">
-            <div class="card" style="width: 18rem; margin-bottom: 40px;">
-                    <div class="card-body">
-                      <h6 class="card-subtitle mb-2 text-muted">Trip dated: <%= childData[i].startTime.split('T')[0].split('-').reverse().join('-') %></h6>
-                      <br>
-                      <h6 class="card-text">Trip Started At: <%= childData[i].startTime.split('T')[1].split(':').join(':').split('.')[0] %></h6>
-                      <h6 class="card-text">Trip Ended At: <%= childData[i].endTime.split('T')[1].split(':').join(':').split('.')[0] %></h6>
-                      <h6 class="card-text">Distance Travelled: <%= childData[i].distanceTravelled %> KMs</h6>
-                      <h6 class="card-text">Mileage Received: <%= childData[i].mileage %> KM/L</h6>
-                      <p class="card-text"></p>
-                    </div>
-                  </div>
+            <div class="card shadow p-3 mb-5 bg-white rounded mx-auto" style="width: 18rem; margin-bottom: 40px;">
+              <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-muted">Trip dated: <%= childData[i].startTime.split('T')[0].split('-').reverse().join('-') %></h6>
+                <br>
+                <h6 class="card-text">Trip Started At: <%= childData[i].startTime.split('T')[1].split(':').join(':').split('.')[0] %></h6>
+                <h6 class="card-text">Trip Ended At: <%= childData[i].endTime.split('T')[1].split(':').join(':').split('.')[0] %></h6>
+                <h6 class="card-text">Distance Travelled: <%= childData[i].distanceTravelled %> KMs</h6>
+                <h6 class="card-text">Mileage Received: <%= childData[i].mileage %> KM/L</h6>
+                <p class="card-text"></p>
+              </div>
+            </div>
         </div>
+    <% } %>
+  <% }else{ %>
+    <div class="col">
+      <br><br><br><br><br><br>
+      <h3>Sorry, no sessions to display</h3>
+      <h3>: (</h3>
+    </div>
     <% } %>
 </div>
 <% include partials/footer %>

@@ -166,6 +166,19 @@ app.get("/edit_vehicle_form", function(req, res) {
   }
 });
 
+app.get("/deleteVehicle", function(req, res) {
+  if (firebase.auth().currentUser != null) {
+    var user = firebase.auth().currentUser;
+    var id = req.query.id;
+    var vehicleDatabase = firebase.database().ref(user.uid + "/Vehicle/" + id);
+    vehicleDatabase.remove();
+    req.flash("error", "Vehicle has been deleted!");
+    res.redirect("/home");
+  } else {
+    res.redirect("/");
+  }
+});
+
 app.post("/vehicleEdit", function(req, res) {
   var vehicleId = req.query.id;
   var company = req.body.company_name;
@@ -201,7 +214,7 @@ app.post("/vehicleEdit", function(req, res) {
 app.get("/dashboard", function(req, res) {
   if (firebase.auth().currentUser != null) {
     var user = firebase.auth().currentUser;
-    var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
+    var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle/");
     currentUserDatabase.once("value", function(snapshot) {
       res.render("dashboard", {
         childData: snapshotToArray(snapshot)
