@@ -1,0 +1,92 @@
+<% include partials/header.ejs %>
+
+<div id="myDiv">
+
+</div>
+<script>
+    var bar = []
+    var vehicle_omreading = []
+    var vehicle_mlg = []
+    var vehicle_name = []
+    var items = <%- JSON.stringify(childData) %>;
+    // var vehicles = <%= vehicle %>;
+    var vehicles = <%- JSON.stringify(vehicle) %>;
+
+
+    // vehicles.forEach(function(item){
+    //     console.log(item);
+    // })
+
+    // items.forEach(function(newItem){
+    //     console.log(n
+    // })
+
+    // for (var k = 0; k < vehicles.length; k++) {
+    //   console.log(vehicles)
+    //     delete items[Objects.keys(vehicles[k])]
+    // 
+
+   
+   for(var i =0 ; i< vehicles.length;i++)
+    {
+    for (var k = 0; k < items.length; k++) 
+        {
+            console.log(items[0])
+            Object.entries(items[k]).forEach(function(item){
+                Object.entries(item).forEach(function(itemNew){
+                    if(typeof itemNew[1] =="object"){
+                        console.log(itemNew[1])
+                        Object.entries(itemNew[1]).forEach(function(inner){
+                            console.log(inner[1].company);
+                            if(vehicles[i].company===inner[1].company && vehicles[i].model===inner[1].model)
+                                {
+                                    vehicle_omreading.push(parseInt((inner[1].odometerReading), 10));
+                                    vehicle_mlg.push(parseInt((inner[1].iMileage), 10));
+                                    vehicle_name.push(inner[1].company + inner[1].model + items[k].email);
+                                }
+                        })
+                    }
+                })
+            })
+
+        }   
+    }
+
+
+    console.log(vehicle_omreading)
+    console.log(vehicle_mlg)
+    console.log(vehicle_name)
+    bar.push(
+        {
+            x: vehicle_name,
+            y: vehicle_omreading,
+            name: "odometerReading",
+            type: "scatter"
+        }
+    );
+    bar.push({
+        x: vehicle_name,
+        y: vehicle_mlg,
+        yaxis: "y2",
+        name: "mileage",
+        type: "scatter"
+    });
+    console.log(bar);
+    var layout = 
+    { 
+      yaxis: {
+          title: "odometer reading",
+          side: "left"
+      },
+      yaxis2: {
+          title: "mileage",
+          titlefont: {color: "rgb(148, 103, 189)"},
+          tickfont: {color: "rgb(148, 103, 189)"},
+          overlaying: 'y',
+          side: "right"
+      }
+    };
+    Plotly.newPlot('myDiv', bar, layout, {}, { showSendToCloud: true });
+</script>
+
+<% include partials/footer.ejs  %>

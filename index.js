@@ -4,6 +4,8 @@ var app = express();
 var uuid = require("uuid/v4");
 var firebase = require("firebase");
 var flash = require("connect-flash");
+var nodeMailer = require("nodemailer");
+
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -40,6 +42,10 @@ var firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
+// admin.initializeApp({
+//   credential: admin.credential.applicationDefault(),
+//   databaseURL: "https://vehicle-management-243006.firebaseio.com"
+// });
 //helper function
 function snapshotToArray(snapshot) {
   var returnArr = [];
@@ -54,6 +60,16 @@ function snapshotToArray(snapshot) {
   return returnArr;
 }
 
+function getAllVehicle(snapshot) {
+  var resultArray = [];
+  snapshot.forEach(function(childsnapshot) {
+    var item = childsnapshot.val();
+    item.key = childsnapshot.key;
+    resultArray.push(item);
+  });
+
+  return resultArray;
+}
 /////---------------------------------/////
 //////////////LandingPageRoute/////////////
 /////---------------------------------/////
@@ -131,7 +147,7 @@ app.get("/dashboard", function(req, res) {
   if (firebase.auth().currentUser != null) {
     var user = firebase.auth().currentUser;
     var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
-    currentUserDatabase.on("value", function(snapshot) {
+    currentUserDatabase.once("value", function(snapshot) {
       res.render("dashboard", {
         childData: snapshotToArray(snapshot)
       });
@@ -146,15 +162,32 @@ app.get("/combinedGraph", function(req, res) {
     var user = firebase.auth().currentUser;
     var allVehicle = [];
     var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
-    currentUserDatabase.on("value", function(snapshot) {
+    currentUserDatabase.once("value", function(snapshot) {
       snapshot.forEach(function(childSnapshot) {
         var item = childSnapshot.val();
-        item.key = childSnapshot.key;
-        item.type = "bar";
         allVehicle.push(item);
       });
       res.render("dashboard_combined", {
-        childData: snapshotToArray(snapshot),
+        childData: snapshotToArray(snapshot)
+      });
+    });
+  } else {
+    res.redirect("/");
+  }
+});
+
+app.get("/compareAll", function(req, res) {
+  if (firebase.auth().currentUser != null) {
+    var user = firebase.auth().currentUser;
+    var allUserDatabase = firebase.database().ref();
+    var allVehicle;
+    var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
+    currentUserDatabase.once("value", function(snapshot) {
+      allVehicle = snapshotToArray(snapshot);
+    });
+    allUserDatabase.once("value", function(snapshot) {
+      res.render("dashboard_compareAll", {
+        childData: getAllVehicle(snapshot),
         vehicle: allVehicle
       });
     });
@@ -170,7 +203,7 @@ app.get("/individualGraph", function(req, res) {
     var currentUserDatabase = firebase
       .database()
       .ref(user.uid + "/Vehicle/" + id);
-    currentUserDatabase.on("value", function(snapshot) {
+    currentUserDatabase.once("value", function(snapshot) {
       res.render("dashboard_individual", {
         childData: snapshot.val()
       });
@@ -186,7 +219,7 @@ app.get("/drive_session", function(req, res) {
   if (firebase.auth().currentUser != null) {
     var user = firebase.auth().currentUser;
     var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
-    currentUserDatabase.on("value", function(snapshot) {
+    currentUserDatabase.once("value", function(snapshot) {
       res.render("drive_session", {
         childData: snapshotToArray(snapshot)
       });
@@ -203,6 +236,71 @@ app.get("/session_history", function(req, res) {
         childData: snapshotToArray(snapshot)
       });
     });
+  }
+});
+
+app.get("/stopSession", function(req, res) {
+  if (firebase.auth().currentUser != null) {
+    var user = firebase.auth().currentUser;
+    var vehicleId = req.query.id;
+    var allVehicle, VendorEmail;
+    var vendorEmail = firebase
+      .database()
+      .ref(user.uid + "/Vehicle/" + vehicleId);
+    vendorEmail.once("value", function(snapshot) {
+      allVehicle = snapshotToArray(snapshot);
+      VendorEmail = allVehicle[allVehicle.length - 1];
+    });
+    var user = firebase.auth().currentUser;
+    var userEmail = user.email;
+    let transporter = nodeMailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: "cse2019secd@gmail.com",
+        pass: "DCES9102ESC"
+      }
+    });
+    let mailOptions = {
+      from: '"Vehicle Management Team" <cse2019secd@gmail.com>', // sender address
+      to: userEmail,
+      VendorEmail, // list of receivers
+      subject: "Fuel  Low", // Subject line
+      text: "Warning,  Fuel running low!.", // plain text body
+      html: "<b>NodeJS Email Tutorial</b>" // html body
+    };
+    let mailOptions2 = {
+      from: '"Vehicle Management Team" <cse2019secd@gmail.com>', // sender address
+      to: userEmail,
+      VendorEmail, // list of receivers
+      subject: "Service Required", // Subject line
+      text: "You vehicle service reuiired.", // plain text body
+      html: "<b>NodeJS Email Tutorial</b>" // html body
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        req.flash("error", "Unable to send email at this moment!");
+        res.redirect("/home");
+      } else {
+        console.log("Message %s sent: %s", info.messageId, info.response);
+        req.flash("success", "Summary of the session has been sent!");
+        res.redirect("/home");
+      }
+    });
+    transporter.sendMail(mailOptions2, (error, info) => {
+      if (error) {
+        req.flash("error", "Unable to send email at this moment!");
+        res.redirect("/home");
+      } else {
+        console.log("Message %s sent: %s", info.messageId, info.response);
+        req.flash("success", "Summary of the session has been sent!");
+        res.redirect("/home");
+      }
+    });
+  } else {
+    res.redirect("/");
   }
 });
 
@@ -232,7 +330,7 @@ app.post("/login", function(req, res) {
 app.post("/register", function(req, res) {
   var email = req.body.email;
   var password = req.body.password;
-
+  console.log("Registered!");
   firebase
     .auth()
     .createUserWithEmailAndPassword(email, password)
@@ -260,6 +358,38 @@ app.get("/logout", function(req, res) {
     });
 });
 
+app.get("/send_mail", function(req, res) {
+  res.render("send_mail");
+});
+
+app.post("/send_mail", function(req, res) {
+  if (firebase.auth().currentUser != null) {
+    let transporter = nodeMailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: "cse2019secd@gmail.com",
+        pass: "DCES9102ESC"
+      }
+    });
+    let mailOptions = {
+      from: '"Team Vehicle Management" <cse2019secd@gmail.com>', // sender address
+      to: req.body.to, // list of receivers
+      subject: "Warning:Fuel on vehicle low", // Subject line
+      text: "Please refil your tank", // plain text body
+      html: "<b>NodeJS Email Tutorial</b>" // html body
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return console.log(error);
+      }
+      console.log("Message %s sent: %s", info.messageId, info.response);
+      res.render("index");
+    });
+  }
+});
 app.listen(8000, function() {
   console.log("Server running at port 8000");
 });

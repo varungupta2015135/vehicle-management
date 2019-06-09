@@ -1,18 +1,38 @@
 <% include partials/header.ejs %>
 
+<h2><%= childData.company + " " + childData.model%></h2>
 <div id="myCar">
-
 </div>
 <script>
     var item = <%- JSON.stringify(childData) %>;
     var data = [
         {
-            x: ["OdoMeterReading", "Mileage"],
-            y: [item.odometerReading, item.iMileage],
+            x: ["OdoMeterReading"],
+            y: [item.odometerReading],
+            type: 'bar'
+        },{
+            x: ["Mileage"],
+            y: [item.iMileage],
+            yaxis: "y2",
             type: 'bar'
         }
     ];
-    Plotly.newPlot('myCar', data);
+
+    var layout = 
+    { 
+      yaxis: {
+          title: "odometer reading",
+          side: "left"
+      },
+      yaxis2: {
+          title: "mileage",
+          titlefont: {color: "rgb(148, 103, 189)"},
+          tickfont: {color: "rgb(148, 103, 189)"},
+          overlaying: 'y',
+          side: "right"
+      }
+    };
+    Plotly.newPlot('myCar', data, layout);
 </script>
 
 <% include partials/footer.ejs  %>
