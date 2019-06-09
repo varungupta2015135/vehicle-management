@@ -1,4 +1,4 @@
-<% include partials/header.ejs %>
+<% include partials/header %>
 
 <h2><%= childData.company + " " + childData.model%></h2>
 <div id="myCar"></div>
@@ -35,4 +35,4 @@
   Plotly.newPlot('myCar', bar, layout, {}, { showSendToCloud: true });
 </script>
 
-<% include partials/footer.ejs %>
+<% include partials/footer %>
