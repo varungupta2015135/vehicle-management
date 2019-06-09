@@ -204,14 +204,32 @@ app.get("/individualGraph", function(req, res) {
   if (firebase.auth().currentUser != null) {
     var id = req.query.id;
     var user = firebase.auth().currentUser;
+    var allSession;
+    var vehicle_info;
+    var vehicle_name = firebase
+    .database()
+    .ref(user.uid + "/Vehicle/" + id);
+
     var currentUserDatabase = firebase
       .database()
-      .ref(user.uid + "/Vehicle/" + id);
+      .ref(user.uid + "/Vehicle/" + id + "/Session");
+    
+    
     currentUserDatabase.once("value", function(snapshot) {
+      allSession = snapshotToArray(snapshot)
+      // console.log(allSession)
+    });
+
+    vehicle_name.once("value", function(snapshot) {
+      vehicle_info = snapshotToArray(snapshot)
       res.render("dashboard_individual", {
-        childData: snapshot.val()
+        childData: allSession,
+        vehicleInfo: vehicle_info
       });
     });
+  }
+  else{
+    res.redirect("/");
   }
 });
 
@@ -224,6 +242,7 @@ app.get("/drive_session", function(req, res) {
     var user = firebase.auth().currentUser;
     var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
     currentUserDatabase.once("value", function(snapshot) {
+
       res.render("drive_session", {
         childData: snapshotToArray(snapshot)
       });
