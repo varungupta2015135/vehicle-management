@@ -3,6 +3,7 @@ var bodyParser = require("body-parser");
 var app = express();
 var uuid = require("uuid/v4");
 var firebase = require("firebase");
+var admin = require("firebase-admin");
 var flash = require("connect-flash");
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -40,6 +41,10 @@ var firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
+admin.initializeApp({
+  credential: admin.credential.applicationDefault(),
+  databaseURL: "https://vehicle-management-243006.firebaseio.com"
+})
 //helper function
 function snapshotToArray(snapshot) {
   var returnArr = [];
@@ -54,6 +59,16 @@ function snapshotToArray(snapshot) {
   return returnArr;
 }
 
+function getAllVehicle(snapshot){
+  var resultArray = [];
+  snapshot.forEach(function(childsnapshot){
+    var item = childsnapshot.val();
+    item.key = childsnapshot.key;
+    resultArray.push(item);
+  });
+
+  return resultArray;
+}
 /////---------------------------------/////
 //////////////LandingPageRoute/////////////
 /////---------------------------------/////
@@ -131,7 +146,7 @@ app.get("/dashboard", function(req, res) {
   if (firebase.auth().currentUser != null) {
     var user = firebase.auth().currentUser;
     var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
-    currentUserDatabase.on("value", function(snapshot) {
+    currentUserDatabase.once("value", function(snapshot) {
       res.render("dashboard", {
         childData: snapshotToArray(snapshot)
       });
@@ -146,7 +161,7 @@ app.get("/combinedGraph", function(req, res) {
     var user = firebase.auth().currentUser;
     var allVehicle = [];
     var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
-    currentUserDatabase.on("value", function(snapshot) {
+    currentUserDatabase.once("value", function(snapshot) {
       snapshot.forEach(function(childSnapshot) {
         var item = childSnapshot.val();
         item.key = childSnapshot.key;
@@ -154,11 +169,33 @@ app.get("/combinedGraph", function(req, res) {
         allVehicle.push(item);
       });
       res.render("dashboard_combined", {
-        childData: snapshotToArray(snapshot),
-        vehicle: allVehicle
+        childData: snapshotToArray(snapshot)
       });
     });
   } else {
+    res.redirect("/");
+  }
+});
+
+app.get("/compareAll",function(req,res){
+  if (firebase.auth().currentUser != null) {
+    var user = firebase.auth().currentUser;
+    var allUserDatabase = firebase
+      .database()
+      .ref();
+    var allVehicle;
+    var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
+      currentUserDatabase.once("value", function(snapshot) {
+        allVehicle = snapshotToArray(snapshot);
+      });
+      allUserDatabase.once("value", function(snapshot) {
+        res.render("dashboard_compareAll", {
+          childData: getAllVehicle(snapshot),
+          vehicle : allVehicle
+        });
+      });
+  }
+  else {
     res.redirect("/");
   }
 });
@@ -170,7 +207,7 @@ app.get("/individualGraph", function(req, res) {
     var currentUserDatabase = firebase
       .database()
       .ref(user.uid + "/Vehicle/" + id);
-    currentUserDatabase.on("value", function(snapshot) {
+    currentUserDatabase.once("value", function(snapshot) {
       res.render("dashboard_individual", {
         childData: snapshot.val()
       });
@@ -186,7 +223,7 @@ app.get("/drive_session", function(req, res) {
   if (firebase.auth().currentUser != null) {
     var user = firebase.auth().currentUser;
     var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
-    currentUserDatabase.on("value", function(snapshot) {
+    currentUserDatabase.once("value", function(snapshot) {
       res.render("drive_session", {
         childData: snapshotToArray(snapshot)
       });
@@ -230,6 +267,7 @@ app.post("/login", function(req, res) {
 app.post("/register", function(req, res) {
   var email = req.body.email;
   var password = req.body.password;
+  console.log("Registered!");
 
   firebase
     .auth()
