@@ -21,8 +21,8 @@
                             <input type="text" class="form-control mx-auto" placeholder="Fuel available in percentage" aria-label="Username" aria-describedby="basic-addon1">
                         </div>
                         <div class="text-center">
-                            <button type="button" class="btn btn-success">Start</button>
-                            <button type="button" class="btn btn-danger">Stop</button>
+                            <a role="button" href="/startAndStopSession/start?id=<%= item.key %>" class="btn btn-success">Start</a>
+                            <a role="button" class="btn btn-danger" href="/startAndStopSession/stop?id=<%= item.key %>">Stop</a>
                         </div>
                     </div>
                 </div>

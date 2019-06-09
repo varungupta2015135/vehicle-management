@@ -1,0 +1,8 @@
+<% include partials/header %>
+
+<h4>
+  <% Object.keys(childData.Session).forEach(function(prop) { %> <%=
+  childData.Session[prop] %> <% }); %>
+</h4>
+
+<% include partials/footer %>
