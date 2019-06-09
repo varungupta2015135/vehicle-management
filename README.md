@@ -1,1 +1,1 @@
-Vehicle Manaement System
+Vehicle Management System
