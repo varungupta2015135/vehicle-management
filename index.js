@@ -187,42 +187,68 @@ app.get("/drive_session", function(req, res) {
   if (firebase.auth().currentUser != null) {
     var user = firebase.auth().currentUser;
     var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
-    currentUserDatabase.on("value", function(snapshot) {
-      res.render("drive_session", {
-        childData: snapshotToArray(snapshot)
+    currentUserDatabase.once("value").then(function(snapshot) {
+      var newSnap = snapshotToArray(snapshot)
+      res.render("drive_session_1", {
+        childData: newSnap
       });
     });
   }
 });
-
-app.get("/startAndStopSession", function(req, res) {
+var finalTime;
+var initialTime;
+var odometerReadingNew;
+var vehicleDetails;
+var mileageFromDB;
+app.get("/startSession", function(req, res, next) {
   if (firebase.auth().currentUser != null) {
     var user = firebase.auth().currentUser;
-    var id = req.body.id;
-    var vehicleDetails = firebase.database().ref(user.uid + "/Vehicle/" + id);
-    var update;
-    var timeStamp;
-    if (session == "start") {
-      update = setInterval(updateValues(vehicleDetails), 1000);
-      console.log(update);
-    } else if (session == "stop") {
-      console.log(timeStamp);
-      clearInterval(update);
-      vehicleDetails.update({
-        odometerReading: odoReading
-      });
-    }
-    function updateValues(vehicleDetails) {
-      var date = new Date();
-      var odoReading = vehicleDetails.odometerReading;
-      odoReading++;
-      console.log(odoReading);
-      timeStamp = date.toLocaleDateString();
-      console.log(timeStamp);
-    }
-  } else {
-    res.redirect("/");
+    var id = req.query.id;
+    initialTime = new Date();
+    vehicleDetails = firebase.database().ref(user.uid + "/Vehicle/" + id);
+    vehicleDetails.once("value").then(function(snapshot){
+      mileageFromDB = snapshot.val().iMileage;
+      odometerReadingNew = snapshot.val().odometerReading;
+    })
   }
+});
+
+app.get("/stopSession",function(req,res){
+    finalTime = new Date();
+    console.log(finalTime);
+    var id = req.query.id;
+    var user = firebase.auth().currentUser;
+    var totalTime = finalTime.getTime() - initialTime.getTime();
+    odometerReadingSession = 1 * (totalTime/(1000));
+    var uuidNew = uuid();
+    var sessionDetails = firebase.database().ref("/" + user.uid +"/Vehicle/" + id + "/Session/"+ uuidNew + "/");
+    vehicleDetails.once("value").then(function(snapshot){
+      mileageFromDB = snapshot.val().iMileage;
+      odometerReadingNew = snapshot.val().odometerReading;
+    })
+    var odometerReadingFinal = Number(odometerReadingNew) + Number(odometerReadingSession);
+    console.log("Final : " + Number(odometerReadingFinal));
+    console.log("Session : " + Number(odometerReadingSession));
+    var newMileage = (Number(mileageFromDB)-Number((1/30)*mileageFromDB));
+    newMileage = newMileage.toFixed(2);
+    var petrolUsedInSession = odometerReadingSession/Number(newMileage);
+    console.log("Petrol : " + Number(petrolUsedInSession));
+    console.log("Database mileage : " + Number(mileageFromDB));
+
+    sessionDetails.update({
+      endTime : finalTime,
+      fFuel : petrolUsedInSession,
+      distanceTravelled : odometerReadingSession,
+      iFuel : 90,
+      mileage : newMileage,
+      startTime : initialTime
+    })
+    vehicleDetails.update({
+      odometerReading : odometerReadingFinal,
+      iMileage : newMileage
+    })
+    res.end();
+    res.redirect("/drive_session");
 });
 
 /////---------------------------------/////
