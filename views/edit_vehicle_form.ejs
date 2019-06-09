@@ -1,0 +1,99 @@
+<% include partials/header.ejs %>
+
+<form action="/vehicleEdit?id=<%= currentVehicleId %>" method="POST">
+  <div class="row" style="text-align: center">
+    <div class="col">
+      <h3>Edit as you may...</h3>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <div class="form-group">
+        <label for="Company">Company</label>
+        <input
+          type="text"
+          class="form-control"
+          id="Company"
+          name="company_name"
+          value="<%= childData.company %>"
+          aria-describedby="emailHelp"
+          placeholder="Enter Company Name (Ex: Toytoa, Maruti Suzuki etc..)"
+        />
+      </div>
+      <div class="form-group">
+        <label for="model">Model</label>
+        <input
+          type="text"
+          class="form-control"
+          id="model"
+          name="model_name"
+          value="<%= childData.model %>"
+          placeholder="Enter Model Name (Ex: SX4, Fortuner etc..)"
+        />
+      </div>
+      <div class="form-group">
+        <label for="make">Make</label>
+        <input
+          type="text"
+          class="form-control"
+          id="make"
+          name="make_name"
+          value="<%= childData.make %>"
+          aria-describedby="petrol/diesel/cng"
+          placeholder="Enter the Make (Ex: Petrol, Dieset, CNG)"
+        />
+      </div>
+      <div class="form-group">
+        <label for="mileage">Initial Mileage</label>
+        <input
+          type="text"
+          class="form-control"
+          id="mileage"
+          name="initial_mileage"
+          value="<%= childData.iMileage %>"
+          aria-describedby="initial mileage"
+          placeholder="Enter current mileage you get (In KM/L)"
+        />
+      </div>
+      <div class="form-group">
+        <label for="distance">Odometer Reading</label>
+        <input
+          type="text"
+          class="form-control"
+          id="distance"
+          name="odometer_reading"
+          value="<%= childData.odometerReading %>"
+          aria-describedby="distance travelled already"
+          placeholder="Enter the Odometer reading (in KMs)"
+        />
+      </div>
+      <div class="form-group">
+        <label for="fuelTank">Fuel Tank Capacity</label>
+        <input
+          type="text"
+          class="form-control"
+          id="fuelTank"
+          name="fuel_capacity"
+          value="<%= childData.fuelTankTotal %>"
+          aria-describedby="total fuel tank capacity"
+          placeholder="Enter the total fuel tank capacity (in Ls)"
+        />
+      </div>
+      <div class="form-group">
+        <label for="vId">Vendor email ID</label>
+        <input
+          type="text"
+          class="form-control"
+          id="vId"
+          name="vendor_email"
+          value="<%= childData.vendorEmail %>"
+          aria-describedby="email id of the vendor"
+          placeholder="Enter the email id of your vendor"
+        />
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+  </div>
+</form>
+
+<% include partials/footer.ejs %>

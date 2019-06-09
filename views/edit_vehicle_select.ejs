@@ -8,12 +8,11 @@
       <p class="card-text">
         Mileage: <%= item.iMileage %> KM/L
       </p>
-      <a href="/session_cards?id=<%= item.key %>" class="btn btn-primary"
-        >View Detailed</a
+      <a href="/edit_vehicle_form?id=<%= item.key %>" class="btn btn-primary"
+        >Edit Details</a
       >
     </div>
   </div>
-
   <% }%> <% }) %>
 </div>
 

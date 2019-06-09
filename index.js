@@ -3,7 +3,6 @@ var bodyParser = require("body-parser");
 var app = express();
 var uuid = require("uuid/v4");
 var firebase = require("firebase");
-var admin = require("firebase-admin");
 var flash = require("connect-flash");
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -41,10 +40,6 @@ var firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-admin.initializeApp({
-  credential: admin.credential.applicationDefault(),
-  databaseURL: "https://vehicle-management-243006.firebaseio.com"
-})
 //helper function
 function snapshotToArray(snapshot) {
   var returnArr = [];
@@ -104,6 +99,59 @@ app.get("/add_vehicle", function(req, res) {
     res.redirect("/");
   }
 });
+
+app.get("/vehicle_edit_select", function(req, res){
+  if(firebase.auth().currentUser != null){
+    var user = firebase.auth().currentUser;
+    var vehicleDatabase = firebase.database().ref(user.uid + "/Vehicle");
+    vehicleDatabase.once("value", function(snapshot){
+      res.render("edit_vehicle_select", {childData: snapshotToArray(snapshot)});
+    })
+  }else{
+    res.redirect("/");
+  }
+})
+
+app.get("/edit_vehicle_form", function(req, res){
+  if(firebase.auth().currentUser != null){
+    var user = firebase.auth().currentUser;
+    var id = req.query.id;
+    var vehicleDatabase = firebase.database().ref(user.uid + "/Vehicle/" + id);
+    vehicleDatabase.once("value", function(snapshot){
+      res.render("edit_vehicle_form", {childData: snapshot.val(), currentVehicleId: id});
+    })
+  }else{
+    res.redirect("/");
+  }
+})
+
+app.post("/vehicleEdit", function(req, res){
+  var vehicleId = req.query.id;
+  var company = req.body.company_name;
+  var model = req.body.model_name;
+  var make = req.body.make_name;
+  var iMileage = req.body.initial_mileage;
+  var odometerReading = req.body.odometer_reading;
+  var fuelTank = req.body.fuel_capacity;
+  var vendorEmail = req.body.vendor_email;
+  if (firebase.auth().currentUser != null) {
+    var user = firebase.auth().currentUser;
+    firebase
+      .database()
+      .ref(user.uid + "/Vehicle/" + vehicleId + "/")
+      .update({
+        company: company,
+        model: model,
+        make: make,
+        iMileage: iMileage,
+        odometerReading: odometerReading,
+        fuelTankTotal: fuelTank,
+        vendorEmail: vendorEmail
+      });
+    req.flash("success", "Vehicle Updated!");
+    res.redirect("/home");
+  }
+})
 
 app.post("/vehicle_add", function(req, res) {
   var company = req.body.company_name;
@@ -248,7 +296,7 @@ app.get("/session_cards", function(req, res){
     var user = firebase.auth().currentUser;
     var id = req.query.id;
     var sessionDatabase = firebase.database().ref(user.uid + "/Vehicle/" + id + "/Session");
-    sessionDatabase.once("value", function(snapshot){
+    sessionDatabase.orderByChild('startTime').once("value", function(snapshot){
       res.render("session_detailed", {childData: snapshotToArray(snapshot)})
     });
   }else{
@@ -267,13 +315,10 @@ app.post("/login", function(req, res) {
     .auth()
     .signInWithEmailAndPassword(username, password)
     .then(user => {
-      console.log("Logged in successfully");
       req.flash("success", "Logged in Successfully!");
       res.redirect("/home");
     })
     .catch(function(error) {
-      console.log(error.code);
-      console.log(error.message);
       req.flash("error", "Incorrect email ID or password!");
       res.redirect("/");
     });
@@ -282,19 +327,15 @@ app.post("/login", function(req, res) {
 app.post("/register", function(req, res) {
   var email = req.body.email;
   var password = req.body.password;
-  console.log("Registered!");
 
   firebase
     .auth()
     .createUserWithEmailAndPassword(email, password)
     .then(function(user) {
-      console.log("New user created and logged in!");
       req.flash("success", "Successfully created and logged in!");
       res.redirect("/home");
     })
     .catch(function(error) {
-      console.log(error.code);
-      console.log(error.message);
       req.flash("error", "Unable to create a new user, try again!");
       res.redirect("/");
     });
@@ -305,8 +346,6 @@ app.get("/logout", function(req, res) {
     .auth()
     .signOut()
     .then(function() {
-      console.log("Logged out successfully!");
-      req.flash("success", "Logged out successfully!");
       res.redirect("/");
     });
 });

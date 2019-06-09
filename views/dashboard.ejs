@@ -1,34 +1,37 @@
 <% include partials/header.ejs %>
 
 <div class="row">
-    <% childData.forEach(function(item){ %>
-    <div class="col">
-        <div class="card mx-auto" style="width: 18rem;">
-            <div class="card-body">
-                <h5 class="card-title"><%= item.company %> <%= item.model %></h5>
-                <h6 class="card-subtitle mb-2 text-muted">
-                    Current Mileage: <%= item.iMileage %>
-                </h6>
-                <a href="/individualGraph?id=<%= item.key %>" class="card-link">View Details</a>
-            </div>
-        </div>
+  <% childData.forEach(function(item){ %> <% if(typeof item == "object"){ %>
+  <div class="col">
+    <div class="card mx-auto" style="width: 18rem;">
+      <div class="card-body">
+        <h5 class="card-title"><%= item.company %> <%= item.model %></h5>
+        <h6 class="card-subtitle mb-2 text-muted">
+          Current Mileage: <%= item.iMileage %>
+        </h6>
+        <a href="/individualGraph?id=<%= item.key %>" class="card-link"
+          >View Details</a
+        >
+      </div>
     </div>
-    <% }) %>
+  </div>
+  <% }%> <% }) %>
 </div>
-<% if(childData.length > 1){ %>
 <br />
 <div class="row" style="text-align: center">
-    <div class="col">
-        <a role="button" href="/combinedGraph" class="btn btn-info">
-            Click here for combined metrics
-        </a>
-    </div>
-    <% } %>
-    <div class="col">
-        <a role="button" href="/compareAll" class="btn btn-info">
-            Compare All
-        </a>
-    </div>
+  <% if(childData.length > 1){ %>
+
+  <div class="col">
+    <a role="button" href="/combinedGraph" class="btn btn-info">
+      Click here for combined metrics
+    </a>
+  </div>
+  <% } %>
+  <div class="col">
+    <a role="button" href="/compareAll" class="btn btn-info">
+      Compare All
+    </a>
+  </div>
 </div>
 
-<% include partials/footer.ejs  %>
+<% include partials/footer.ejs %>

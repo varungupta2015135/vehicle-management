@@ -1,13 +1,14 @@
 <% include partials/header %>
-
+<h3 style="text-align: center">Session Details</h3>
+<br><br>
 <div class="row" style="text-align: center">
+
     <% var length = childData.length %>
     <% console.log(childData[0]) %>
     <% for(var i=0; i<length; i++) { %>
-        <div class="col-sm">
+        <div class="col">
             <div class="card" style="width: 18rem; margin-bottom: 40px;">
                     <div class="card-body">
-                      <h5 class="card-title">Summary</h5>
                       <h6 class="card-subtitle mb-2 text-muted">Trip dated: <%= childData[i].startTime.split('T')[0].split('-').reverse().join('-') %></h6>
                       <br>
                       <h6 class="card-text">Trip Started At: <%= childData[i].startTime.split('T')[1].split(':').join(':').split('.')[0] %></h6>
