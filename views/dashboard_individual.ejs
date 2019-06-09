@@ -15,9 +15,7 @@
       vehicle_mlg.push(parseInt((items[k].mileage), 10));
       vehicle_name.push("Session " + (k+1));
   }
-  console.log(vehicle_omreading)
-  console.log(vehicle_mlg)
-  console.log(vehicle_name)
+
   bar.push(
       {
           x: vehicle_name,
@@ -32,7 +30,7 @@
       name: "mileage",
       type: "bar"
   });
-  console.log(bar);
+
   var layout = { barmode: 'group' };
   Plotly.newPlot('myCar', bar, layout, {}, { showSendToCloud: true });
 </script>
