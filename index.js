@@ -235,11 +235,26 @@ app.get("/session_history", function(req, res) {
   if (firebase.auth().currentUser != null) {
     var user = firebase.auth().currentUser;
     var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
-    currentUserDatabase.on("value", function(snapshot) {
-      
+    currentUserDatabase.once("value", function(snapshot) {
+      res.render("session_history", {childData: snapshotToArray(snapshot)})
     });
+  }else{
+    res.redirect("/");
   }
 });
+
+app.get("/session_cards", function(req, res){
+  if(firebase.auth().currentUser != null){
+    var user = firebase.auth().currentUser;
+    var id = req.query.id;
+    var sessionDatabase = firebase.database().ref(user.uid + "/Vehicle/" + id + "/Session");
+    sessionDatabase.once("value", function(snapshot){
+      res.render("session_detailed", {childData: snapshotToArray(snapshot)})
+    });
+  }else{
+    res.redirect("/");
+  }
+})
 
 /////---------------------------------/////
 ////////////////AuthRoutes/////////////////

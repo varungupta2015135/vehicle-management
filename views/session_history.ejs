@@ -1,8 +1,15 @@
 <% include partials/header %>
 
-<h4>
-  <% Object.keys(childData.Session).forEach(function(prop) { %> <%=
-  childData.Session[prop] %> <% }); %>
-</h4>
-
-<% include partials/footer %>
+<div class="row" style="text-align: center">
+  <% childData.forEach(function(item){ %>
+  <div class="card" style="width: 18rem;">
+    <div class="card-body">
+      <h5 class="card-title"><%= item.company %></h5>
+      <p class="card-text">
+        Mileage: <%= item.iMileage %> KM/L
+      </p>
+      <a href="/session_cards?id=<%= item.key %>" class="btn btn-primary">View Detailed</a>
+    </div>
+  </div>
+  <% }) %> <% include partials/footer %>
+</div>
