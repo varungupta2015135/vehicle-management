@@ -207,7 +207,7 @@ app.get("/individualGraph", function(req, res) {
     var currentUserDatabase = firebase
       .database()
       .ref(user.uid + "/Vehicle/" + id);
-    currentUserDatabase.on("value", function(snapshot) {
+    currentUserDatabase.once("value", function(snapshot) {
       res.render("dashboard_individual", {
         childData: snapshot.val()
       });
@@ -223,7 +223,7 @@ app.get("/drive_session", function(req, res) {
   if (firebase.auth().currentUser != null) {
     var user = firebase.auth().currentUser;
     var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
-    currentUserDatabase.on("value", function(snapshot) {
+    currentUserDatabase.once("value", function(snapshot) {
       res.render("drive_session", {
         childData: snapshotToArray(snapshot)
       });
