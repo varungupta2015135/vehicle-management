@@ -163,7 +163,6 @@ app.get("/combinedGraph", function(req, res) {
   }
 });
 
-
 app.get("/individualGraph", function(req, res) {
   if (firebase.auth().currentUser != null) {
     var id = req.query.id;
@@ -195,40 +194,21 @@ app.get("/drive_session", function(req, res) {
   }
 });
 
-app.get("/startAndStopSession", function(req, res) {
+app.get("/session_history", function(req, res) {
   if (firebase.auth().currentUser != null) {
     var user = firebase.auth().currentUser;
-    var id = req.body.id;
-    var vehicleDetails = firebase.database().ref(user.uid + "/Vehicle/" + id);
-    var update;
-    var timeStamp;
-    if (session == "start") {
-      update = setInterval(updateValues(vehicleDetails), 1000);
-      console.log(update);
-    } else if (session == "stop") {
-      console.log(timeStamp);
-      clearInterval(update);
-      vehicleDetails.update({
-        odometerReading: odoReading
+    var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
+    currentUserDatabase.on("value", function(snapshot) {
+      res.render("session_history", {
+        childData: snapshotToArray(snapshot)
       });
-    }
-    function updateValues(vehicleDetails) {
-      var date = new Date();
-      var odoReading = vehicleDetails.odometerReading;
-      odoReading++;
-      console.log(odoReading);
-      timeStamp = date.toLocaleDateString();
-      console.log(timeStamp);
-    }
-  } else {
-    res.redirect("/");
+    });
   }
 });
 
 /////---------------------------------/////
 ////////////////AuthRoutes/////////////////
 /////---------------------------------/////
-
 
 app.post("/login", function(req, res) {
   const username = req.body.email;
