@@ -40,7 +40,10 @@ var firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-//helper function
+/////////////////////////////////////
+///////////Helper Functions//////////
+/////////////////////////////////////
+
 function snapshotToArray(snapshot) {
   var returnArr = [];
 
@@ -54,9 +57,9 @@ function snapshotToArray(snapshot) {
   return returnArr;
 }
 
-function getAllVehicle(snapshot){
+function getAllVehicle(snapshot) {
   var resultArray = [];
-  snapshot.forEach(function(childsnapshot){
+  snapshot.forEach(function(childsnapshot) {
     var item = childsnapshot.val();
     item.key = childsnapshot.key;
     resultArray.push(item);
@@ -100,59 +103,6 @@ app.get("/add_vehicle", function(req, res) {
   }
 });
 
-app.get("/vehicle_edit_select", function(req, res){
-  if(firebase.auth().currentUser != null){
-    var user = firebase.auth().currentUser;
-    var vehicleDatabase = firebase.database().ref(user.uid + "/Vehicle");
-    vehicleDatabase.once("value", function(snapshot){
-      res.render("edit_vehicle_select", {childData: snapshotToArray(snapshot)});
-    })
-  }else{
-    res.redirect("/");
-  }
-})
-
-app.get("/edit_vehicle_form", function(req, res){
-  if(firebase.auth().currentUser != null){
-    var user = firebase.auth().currentUser;
-    var id = req.query.id;
-    var vehicleDatabase = firebase.database().ref(user.uid + "/Vehicle/" + id);
-    vehicleDatabase.once("value", function(snapshot){
-      res.render("edit_vehicle_form", {childData: snapshot.val(), currentVehicleId: id});
-    })
-  }else{
-    res.redirect("/");
-  }
-})
-
-app.post("/vehicleEdit", function(req, res){
-  var vehicleId = req.query.id;
-  var company = req.body.company_name;
-  var model = req.body.model_name;
-  var make = req.body.make_name;
-  var iMileage = req.body.initial_mileage;
-  var odometerReading = req.body.odometer_reading;
-  var fuelTank = req.body.fuel_capacity;
-  var vendorEmail = req.body.vendor_email;
-  if (firebase.auth().currentUser != null) {
-    var user = firebase.auth().currentUser;
-    firebase
-      .database()
-      .ref(user.uid + "/Vehicle/" + vehicleId + "/")
-      .update({
-        company: company,
-        model: model,
-        make: make,
-        iMileage: iMileage,
-        odometerReading: odometerReading,
-        fuelTankTotal: fuelTank,
-        vendorEmail: vendorEmail
-      });
-    req.flash("success", "Vehicle Updated!");
-    res.redirect("/home");
-  }
-})
-
 app.post("/vehicle_add", function(req, res) {
   var company = req.body.company_name;
   var model = req.body.model_name;
@@ -186,6 +136,64 @@ app.post("/vehicle_add", function(req, res) {
   }
 });
 
+app.get("/vehicle_edit_select", function(req, res) {
+  if (firebase.auth().currentUser != null) {
+    var user = firebase.auth().currentUser;
+    var vehicleDatabase = firebase.database().ref(user.uid + "/Vehicle");
+    vehicleDatabase.once("value", function(snapshot) {
+      res.render("edit_vehicle_select", {
+        childData: snapshotToArray(snapshot)
+      });
+    });
+  } else {
+    res.redirect("/");
+  }
+});
+
+app.get("/edit_vehicle_form", function(req, res) {
+  if (firebase.auth().currentUser != null) {
+    var user = firebase.auth().currentUser;
+    var id = req.query.id;
+    var vehicleDatabase = firebase.database().ref(user.uid + "/Vehicle/" + id);
+    vehicleDatabase.once("value", function(snapshot) {
+      res.render("edit_vehicle_form", {
+        childData: snapshot.val(),
+        currentVehicleId: id
+      });
+    });
+  } else {
+    res.redirect("/");
+  }
+});
+
+app.post("/vehicleEdit", function(req, res) {
+  var vehicleId = req.query.id;
+  var company = req.body.company_name;
+  var model = req.body.model_name;
+  var make = req.body.make_name;
+  var iMileage = req.body.initial_mileage;
+  var odometerReading = req.body.odometer_reading;
+  var fuelTank = req.body.fuel_capacity;
+  var vendorEmail = req.body.vendor_email;
+  if (firebase.auth().currentUser != null) {
+    var user = firebase.auth().currentUser;
+    firebase
+      .database()
+      .ref(user.uid + "/Vehicle/" + vehicleId + "/")
+      .update({
+        company: company,
+        model: model,
+        make: make,
+        iMileage: iMileage,
+        odometerReading: odometerReading,
+        fuelTankTotal: fuelTank,
+        vendorEmail: vendorEmail
+      });
+    req.flash("success", "Vehicle Updated!");
+    res.redirect("/home");
+  }
+});
+
 /////---------------------------------/////
 /////////////DashboardRoutes///////////////
 /////---------------------------------/////
@@ -212,8 +220,6 @@ app.get("/combinedGraph", function(req, res) {
     currentUserDatabase.once("value", function(snapshot) {
       snapshot.forEach(function(childSnapshot) {
         var item = childSnapshot.val();
-        item.key = childSnapshot.key;
-        item.type = "bar";
         allVehicle.push(item);
       });
       res.render("dashboard_combined", {
@@ -225,25 +231,22 @@ app.get("/combinedGraph", function(req, res) {
   }
 });
 
-app.get("/compareAll",function(req,res){
+app.get("/compareAll", function(req, res) {
   if (firebase.auth().currentUser != null) {
     var user = firebase.auth().currentUser;
-    var allUserDatabase = firebase
-      .database()
-      .ref();
+    var allUserDatabase = firebase.database().ref();
     var allVehicle;
     var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
-      currentUserDatabase.once("value", function(snapshot) {
-        allVehicle = snapshotToArray(snapshot);
+    currentUserDatabase.once("value", function(snapshot) {
+      allVehicle = snapshotToArray(snapshot);
+    });
+    allUserDatabase.once("value", function(snapshot) {
+      res.render("dashboard_compareAll", {
+        childData: getAllVehicle(snapshot),
+        vehicle: allVehicle
       });
-      allUserDatabase.once("value", function(snapshot) {
-        res.render("dashboard_compareAll", {
-          childData: getAllVehicle(snapshot),
-          vehicle : allVehicle
-        });
-      });
-  }
-  else {
+    });
+  } else {
     res.redirect("/");
   }
 });
@@ -252,14 +255,27 @@ app.get("/individualGraph", function(req, res) {
   if (firebase.auth().currentUser != null) {
     var id = req.query.id;
     var user = firebase.auth().currentUser;
+    var allSession;
+    var vehicle_info;
+    var vehicle_name = firebase.database().ref(user.uid + "/Vehicle/" + id);
+
     var currentUserDatabase = firebase
       .database()
-      .ref(user.uid + "/Vehicle/" + id);
+      .ref(user.uid + "/Vehicle/" + id + "/Session");
+
     currentUserDatabase.once("value", function(snapshot) {
+      allSession = snapshotToArray(snapshot);
+    });
+
+    vehicle_name.once("value", function(snapshot) {
+      vehicle_info = snapshotToArray(snapshot);
       res.render("dashboard_individual", {
-        childData: snapshot.val()
+        childData: allSession,
+        vehicleInfo: vehicle_info
       });
     });
+  } else {
+    res.redirect("/");
   }
 });
 
@@ -284,25 +300,27 @@ app.get("/session_history", function(req, res) {
     var user = firebase.auth().currentUser;
     var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
     currentUserDatabase.once("value", function(snapshot) {
-      res.render("session_history", {childData: snapshotToArray(snapshot)})
+      res.render("session_history", { childData: snapshotToArray(snapshot) });
     });
-  }else{
+  } else {
     res.redirect("/");
   }
 });
 
-app.get("/session_cards", function(req, res){
-  if(firebase.auth().currentUser != null){
+app.get("/session_cards", function(req, res) {
+  if (firebase.auth().currentUser != null) {
     var user = firebase.auth().currentUser;
     var id = req.query.id;
-    var sessionDatabase = firebase.database().ref(user.uid + "/Vehicle/" + id + "/Session");
-    sessionDatabase.orderByChild('startTime').once("value", function(snapshot){
-      res.render("session_detailed", {childData: snapshotToArray(snapshot)})
+    var sessionDatabase = firebase
+      .database()
+      .ref(user.uid + "/Vehicle/" + id + "/Session");
+    sessionDatabase.orderByChild("startTime").once("value", function(snapshot) {
+      res.render("session_detailed", { childData: snapshotToArray(snapshot) });
     });
-  }else{
+  } else {
     res.redirect("/");
   }
-})
+});
 
 /////---------------------------------/////
 ////////////////AuthRoutes/////////////////
