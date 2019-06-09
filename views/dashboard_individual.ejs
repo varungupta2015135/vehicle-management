@@ -1,38 +1,40 @@
 <% include partials/header.ejs %>
 
 <h2><%= childData.company + " " + childData.model%></h2>
-<div id="myCar">
-</div>
+<div id="myCar"></div>
 <script>
-    var item = <%- JSON.stringify(childData) %>;
-    var data = [
-        {
-            x: ["OdoMeterReading"],
-            y: [item.odometerReading],
-            type: 'bar'
-        },{
-            x: ["Mileage"],
-            y: [item.iMileage],
-            yaxis: "y2",
-            type: 'bar'
-        }
-    ];
-
-    var layout = 
-    { 
-      yaxis: {
-          title: "odometer reading",
-          side: "left"
-      },
-      yaxis2: {
-          title: "mileage",
-          titlefont: {color: "rgb(148, 103, 189)"},
-          tickfont: {color: "rgb(148, 103, 189)"},
-          overlaying: 'y',
-          side: "right"
+  var bar = []
+  var vehicle_omreading = []
+  var vehicle_mlg = []
+  var vehicle_name = []
+  var items = <%- JSON.stringify(vehicleInfo) %>
+  document.getElementById("graphTitle").innerHTML = items[1] + " " + items[5];
+  var items = <%- JSON.stringify(childData) %>;
+  for (var k = 0; k < items.length; k++) {
+      vehicle_omreading.push(parseInt((items[k].finalOdometer), 10));
+      vehicle_mlg.push(parseInt((items[k].mileage), 10));
+      vehicle_name.push("Session " + (k+1));
+  }
+  console.log(vehicle_omreading)
+  console.log(vehicle_mlg)
+  console.log(vehicle_name)
+  bar.push(
+      {
+          x: vehicle_name,
+          y: vehicle_omreading,
+          name: "odometerReading",
+          type: "bar"
       }
-    };
-    Plotly.newPlot('myCar', data, layout);
+  );
+  bar.push({
+      x: vehicle_name,
+      y: vehicle_mlg,
+      name: "mileage",
+      type: "bar"
+  });
+  console.log(bar);
+  var layout = { barmode: 'group' };
+  Plotly.newPlot('myCar', bar, layout, {}, { showSendToCloud: true });
 </script>
 
-<% include partials/footer.ejs  %>
+<% include partials/footer.ejs %>

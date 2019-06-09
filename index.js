@@ -288,7 +288,7 @@ app.get("/drive_session", function(req, res) {
     var user = firebase.auth().currentUser;
     var currentUserDatabase = firebase.database().ref(user.uid + "/Vehicle");
     currentUserDatabase.once("value", function(snapshot) {
-      res.render("drive_session", {
+      res.render("drive_session_1", {
         childData: snapshotToArray(snapshot)
       });
     });
