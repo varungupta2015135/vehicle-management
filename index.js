@@ -4,6 +4,7 @@ var app = express();
 var uuid = require("uuid/v4");
 var firebase = require("firebase");
 var flash = require("connect-flash");
+var nodeMailer = require("nodemailer");
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -215,7 +216,6 @@ app.get("/startSession", function(req, res, next) {
 
 app.get("/stopSession",function(req,res){
     finalTime = new Date();
-    console.log(finalTime);
     var id = req.query.id;
     var user = firebase.auth().currentUser;
     var totalTime = finalTime.getTime() - initialTime.getTime();
@@ -227,14 +227,10 @@ app.get("/stopSession",function(req,res){
       odometerReadingNew = snapshot.val().odometerReading;
     })
     var odometerReadingFinal = Number(odometerReadingNew) + Number(odometerReadingSession);
-    console.log("Final : " + Number(odometerReadingFinal));
-    console.log("Session : " + Number(odometerReadingSession));
     var newMileage = (Number(mileageFromDB)-Number((1/30)*mileageFromDB));
     newMileage = newMileage.toFixed(2);
     var petrolUsedInSession = odometerReadingSession/Number(newMileage);
-    console.log("Petrol : " + Number(petrolUsedInSession));
-    console.log("Database mileage : " + Number(mileageFromDB));
-
+    
     sessionDetails.update({
       endTime : finalTime,
       fFuel : petrolUsedInSession,
@@ -247,8 +243,69 @@ app.get("/stopSession",function(req,res){
       odometerReading : odometerReadingFinal,
       iMileage : newMileage
     })
-    res.end();
-    res.redirect("/drive_session");
+    var allVehicle, VendorEmail;
+    var vendorEmail = firebase
+      .database()
+      .ref(user.uid + "/Vehicle/" + id);
+    vendorEmail.once("value", function(snapshot) {
+      allVehicle = snapshotToArray(snapshot);
+      VendorEmail = allVehicle[allVehicle.length - 1];
+    });
+    
+    console.log(VendorEmail);
+    let transporter = nodeMailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: "cse2019secd@gmail.com",
+        pass: "DCES9102ESC"
+      },
+      tls: {
+        // do not fail on invalid certs
+        rejectUnauthorized: false
+      }
+    });
+    console.log(transporter);
+    let mailOptions = {
+      from: '"Vehicle Management Team" <cse2019secd@gmail.com>', // sender address
+      to: user.email, // list of receivers
+      subject: "Fuel  Low", // Subject line
+      text: "Warning,  Fuel running low!.", // plain text body
+      html: "<b>NodeJS Email Tutorial</b>" // html body
+    };
+    console.log(mailOptions);
+    // let mailOptions2 = {
+    //   from: '"Vehicle Management Team" <cse2019secd@gmail.com>', // sender address
+    //   to: userEmail, // list of receivers
+    //   subject: "Service Required", // Subject line
+    //   text: "You vehicle service reuiired.", // plain text body
+    //   html: "<b>NodeJS Email Tutorial</b>" // html body
+    // };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log(error);
+        req.flash("error", "Unable to send email at this moment!");
+        res.redirect("/home");
+      } else {
+        console.log("no error");
+        console.log("Message %s sent: %s", info.messageId, info.response);
+        req.flash("success", "Summary of the session has been sent!");
+        res.redirect("/home");
+      }
+    });
+    // transporter.sendMail(mailOptions, (error, info) => {
+    //   if (error) {
+    //     console.log("Error 2");
+    //     req.flash("error", "Unable to send email at this moment!");
+    //   } else {
+    //     console.log("no error 2");
+    //     console.log("Message %s sent: %s", info.messageId, info.response);
+    //     req.flash("success", "Summary of the session has been sent!");
+    //   }
+    // });
+    // res.redirect("/drive_session");
 });
 
 /////---------------------------------/////
