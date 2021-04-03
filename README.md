@@ -7,4 +7,4 @@ Poor performance of your vehicle over a period of time? We'll alert you and your
 
 ## Tech Stack
 
-The web interface is written in **HTML** and **embedded Javascript** while leveraging the power of **Bootstrap**. The backend is powered by **Node**, with **Firebase** being used as the datastore.\\n**NodeMailer** is used to trigger emails, while **fusioncharts**, **plotly** and **nodeplotlib** are being utilized to generate the beautiful and informative graphs.
+The web interface is written in **HTML** and **embedded Javascript** while leveraging the power of **Bootstrap**. The backend is powered by **Node**, with **Firebase** being used as the datastore.  **NodeMailer** is used to trigger emails, while **fusioncharts**, **plotly** and **nodeplotlib** are being utilized to generate the beautiful and informative graphs.
